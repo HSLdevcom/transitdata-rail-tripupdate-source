@@ -32,22 +32,20 @@ class RailTripUpdateService {
     }
 
     Integer sendRailTripUpdates(GtfsRealtime.FeedMessage feedMessage) throws PulsarClientException {
-        AtomicReference<Integer> sentCancellations = new AtomicReference<>(0);
+        AtomicReference<Integer> sentTripUpdates = new AtomicReference<>(0);
         List<GtfsRealtime.TripUpdate> tripUpdates = filterRailTripUpdates(feedMessage);
         log.info("Found {} rail alerts", tripUpdates.size());
         final long timestampMs = feedMessage.getHeader().getTimestamp() * 1000;
         for (GtfsRealtime.TripUpdate tripUpdate : tripUpdates) {
-            sendCancellations(tripUpdate, timestampMs, sentCancellations);
+            sendTripUpdates(tripUpdate, timestampMs, sentTripUpdates);
         }
-        return sentCancellations.get();
+        return sentTripUpdates.get();
     }
 
-    private void sendCancellations(GtfsRealtime.TripUpdate tripUpdate, long timestampMs, AtomicReference<Integer> sentCancellations) throws PulsarClientException {
+    private void sendTripUpdates(GtfsRealtime.TripUpdate tripUpdate, long timestampMs, AtomicReference<Integer> sentTripUpdates) throws PulsarClientException {
         try {
             final GtfsRealtime.TripDescriptor tripDescriptor = tripUpdate.getTrip();
-
             InternalMessages.TripCancellation.Status status = null;
-
             if (tripDescriptor.hasScheduleRelationship()) {
                 if (tripDescriptor.getScheduleRelationship() == GtfsRealtime.TripDescriptor.ScheduleRelationship.CANCELED) {
                     status = InternalMessages.TripCancellation.Status.CANCELED;
@@ -57,13 +55,11 @@ class RailTripUpdateService {
                     log.warn("TripUpdate TripDescriptor ScheduledRelationship is {}", tripDescriptor.getScheduleRelationship());
                 }
             }
-
             if (status != null) {
                 if (status == InternalMessages.TripCancellation.Status.CANCELED) {
                     //GTFS-RT direction is mapped to 0 & 1, our cache keys are in Jore-format 1 & 2
                     final int joreDirection = tripDescriptor.getDirectionId() + 1;
                     final JoreDateTime startDateTime = new JoreDateTime(serviceDayStartTime, tripDescriptor.getStartDate(), tripDescriptor.getStartTime());
-
                     final String cacheKey = TransitdataProperties.formatJoreId(
                             tripDescriptor.getRouteId(),
                             Integer.toString(joreDirection),
@@ -80,7 +76,6 @@ class RailTripUpdateService {
                         log.info("Produced a cancellation for trip: " + tripCancellation.getRouteId() + "/" +
                                 tripCancellation.getDirectionId() + "-" + tripCancellation.getStartTime() + "-" +
                                 tripCancellation.getStartDate());
-
                     } else {
                         log.error("Failed to produce trip cancellation message, could not find dvjId from Redis for key " + cacheKey);
                     }
@@ -88,7 +83,6 @@ class RailTripUpdateService {
                     //GTFS-RT direction is mapped to 0 & 1, our cache keys are in Jore-format 1 & 2
                     final int joreDirection = tripDescriptor.getDirectionId() + 1;
                     final JoreDateTime startDateTime = new JoreDateTime(serviceDayStartTime, tripDescriptor.getStartDate(), tripDescriptor.getStartTime());
-
                     final String cacheKey = TransitdataProperties.formatJoreId(
                             tripDescriptor.getRouteId(),
                             Integer.toString(joreDirection),
@@ -96,17 +90,13 @@ class RailTripUpdateService {
                     final String dvjId = jedis.get(cacheKey);
                     if (dvjId != null) {
                         InternalMessages.StopEstimate stopEstimate = createStopEstimatePayload(tripDescriptor, dvjId, null, 1L, 1L, null);
-
                         producer.newMessage().value(stopEstimate.toByteArray())
                                 .eventTime(timestampMs)
                                 .key(dvjId)
                                 .property(TransitdataProperties.KEY_DVJ_ID, dvjId)
                                 .property(TransitdataProperties.KEY_PROTOBUF_SCHEMA, TransitdataProperties.ProtobufSchema.InternalMessagesTripCancellation.toString())
                                 .send();
-
-
                     }
-
                 } else {
                     log.warn("TripUpdate has no schedule relationship in the trip descriptor, ignoring.");
                 }
