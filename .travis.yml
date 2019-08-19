@@ -29,7 +29,7 @@ before_install:
 
 cache:
   directories:
-    - $HOME/.m2
+    - ~/.m2
 script:
   - set -e
   - ./.travis/check_semver
