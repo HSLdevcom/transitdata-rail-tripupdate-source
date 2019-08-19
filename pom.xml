@@ -5,6 +5,15 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
+
+
+    <repositories>
+        <repository>
+            <id>bintray</id>
+            <name>bintray</name>
+            <url>https://dl.bintray.com/hsldevcom/maven</url>
+        </repository>
+    </repositories>
     <profiles>
         <!-- The Configuration of the unit-test profile -->
         <profile>
