@@ -129,7 +129,7 @@
                             <archiveBaseDirectory>${project.basedir}</archiveBaseDirectory>
                             <archive>
                                 <manifest>
-                                    <mainClass>fi.hsl.transitdata.railsource.Main</mainClass>
+                                    <mainClass>fi.hsl.transitdata.railsource.HSLRailSourceMain</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
