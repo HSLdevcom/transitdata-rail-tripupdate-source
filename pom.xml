@@ -106,7 +106,7 @@
     </dependencies>
 
     <build>
-        <finalName>transitdata-hslalert-source</finalName>
+        <finalName>transitdata-rail-tripupdate-source</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -129,7 +129,7 @@
                             <archiveBaseDirectory>${project.basedir}</archiveBaseDirectory>
                             <archive>
                                 <manifest>
-                                    <mainClass>fi.hsl.transitdata.hslalertsource.Main</mainClass>
+                                    <mainClass>fi.hsl.transitdata.railsource.Main</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
