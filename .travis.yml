@@ -30,7 +30,13 @@ before_install:
 cache:
   directories:
     - ~/.m2
+
+
+
 script:
+  - mvn -f pom.xml dependency:resolve-plugins dependency:resolve clean package
+  - mvn -f pom.xml test
+  - mvn -f pom.xml clean package
   - set -e
   - ./.travis/check_semver
   - docker build --tag "${DOCKER_LOCAL}" .
