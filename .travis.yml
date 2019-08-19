@@ -31,8 +31,6 @@ cache:
   directories:
     - ~/.m2
 
-
-
 script:
   - mvn -f pom.xml clean install
   - set -e
