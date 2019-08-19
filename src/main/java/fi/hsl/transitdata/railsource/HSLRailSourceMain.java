@@ -29,7 +29,7 @@ public class HSLRailSourceMain {
             final PulsarApplication app = PulsarApplication.newInstance(config);
             final PulsarApplicationContext context = app.getContext();
             final HslRailPoller poller = new HslRailPoller(context.getProducer(), context.getJedis(), config,
-                    new RailTripUpdateService(context.getProducer(), context.getJedis(), config.getString("serviceDayStartTime")));
+                    new RailTripUpdateService(context.getProducer(), config.getString("serviceDayStartTime")));
 
             final int pollIntervalInSeconds = config.getInt("poller.interval");
             final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();

@@ -7,7 +7,6 @@ import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.junit.Before;
 import org.junit.Test;
-import redis.clients.jedis.Jedis;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -24,15 +23,14 @@ public class RailTripUpdateServiceTest {
     public void init() {
         FEEDMESSAGE = TestUtils.readExample();
         Producer producerMock = mock(Producer.class);
-        Jedis jedisMock = mock(Jedis.class);
-        this.railTripUpdateService = new RailTripUpdateService(producerMock, jedisMock, "04:30");
+        this.railTripUpdateService = new RailTripUpdateService(producerMock, "04:30");
     }
 
     @Test
     public void handleRailAlerts_sendValidAlert_shouldSendToProducer() throws PulsarClientException {
         Integer sentTripUpdates = this.railTripUpdateService.sendRailTripUpdates(FEEDMESSAGE);
         //Example file contains 35 alerts
-        assertEquals(sentTripUpdates,107, 0);
+        assertEquals(sentTripUpdates, 107, 0);
     }
 
 
