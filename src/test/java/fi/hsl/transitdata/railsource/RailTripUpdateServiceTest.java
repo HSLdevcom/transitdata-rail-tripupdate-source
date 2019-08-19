@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 @Slf4j
-public class RailAlertServiceTest {
+public class RailTripUpdateServiceTest {
 
     private static GtfsRealtime.FeedMessage FEEDMESSAGE = null;
     private static PulsarApplicationContext context;
@@ -32,7 +32,7 @@ public class RailAlertServiceTest {
     public void handleRailAlerts_sendValidAlert_shouldSendToProducer() throws PulsarClientException {
         Integer sentTripUpdates = this.railTripUpdateService.sendRailTripUpdates(FEEDMESSAGE);
         //Example file contains 35 alerts
-        assertEquals(sentTripUpdates, 35, 0);
+        assertEquals(sentTripUpdates,107, 0);
     }
 
 
