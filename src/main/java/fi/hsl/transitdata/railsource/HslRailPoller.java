@@ -17,7 +17,6 @@ class HslRailPoller {
 
     private final Producer<byte[]> producer;
     private final Jedis jedis;
-    private final String serviceDayStartTime;
     private final String railUrlString;
     private final RailTripUpdateService railTripUpdateService;
 
@@ -25,7 +24,6 @@ class HslRailPoller {
         this.railUrlString = config.getString("poller.railurl");
         this.producer = producer;
         this.jedis = jedis;
-        this.serviceDayStartTime = config.getString("poller.serviceDayStartTime");
         this.railTripUpdateService = railTripUpdateService;
     }
 
