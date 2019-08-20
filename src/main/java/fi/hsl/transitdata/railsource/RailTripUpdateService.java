@@ -16,12 +16,10 @@ import static fi.hsl.transitdata.railsource.RailSpecific.filterRailTripUpdates;
  */
 @Slf4j
 class RailTripUpdateService {
-    private final String serviceDayStartTime;
     private Producer<byte[]> producer;
 
-    RailTripUpdateService(Producer<byte[]> producer, String serviceDayStartTime) {
+    RailTripUpdateService(Producer<byte[]> producer) {
         this.producer = producer;
-        this.serviceDayStartTime = serviceDayStartTime;
     }
 
     Integer sendRailTripUpdates(GtfsRealtime.FeedMessage feedMessage) throws PulsarClientException {

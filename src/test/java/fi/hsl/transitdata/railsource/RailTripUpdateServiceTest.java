@@ -23,7 +23,7 @@ public class RailTripUpdateServiceTest {
     public void init() {
         FEEDMESSAGE = TestUtils.readExample();
         Producer producerMock = mock(Producer.class);
-        this.railTripUpdateService = new RailTripUpdateService(producerMock, "04:30");
+        this.railTripUpdateService = new RailTripUpdateService(producerMock);
     }
 
     @Test
