@@ -30,7 +30,7 @@ public class RailTripUpdateServiceTest {
     public void handleRailAlerts_sendValidAlert_shouldSendToProducer() throws PulsarClientException {
         Integer sentTripUpdates = this.railTripUpdateService.sendRailTripUpdates(FEEDMESSAGE);
         //Example file contains 35 alerts
-        assertEquals(sentTripUpdates, 215, 0);
+        assertEquals(sentTripUpdates, 232, 0);
     }
 
 
