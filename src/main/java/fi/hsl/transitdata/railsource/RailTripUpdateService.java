@@ -27,7 +27,7 @@ class RailTripUpdateService {
         int sentTripUpdates = 0;
 
         List<GtfsRealtime.TripUpdate> tripUpdates = filterRailTripUpdates(feedMessage);
-        log.info("Found {} rail alerts", tripUpdates.size());
+        log.info("Found {} rail trip updates", tripUpdates.size());
         for (GtfsRealtime.TripUpdate tripUpdate : tripUpdates) {
             sendTripUpdate(tripUpdate);
             sentTripUpdates++;
