@@ -8,11 +8,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 class RailSpecific {
-    static List<GtfsRealtime.TripUpdate> filterRailTripUpdates(GtfsRealtime.FeedMessage feedMessage) {
+    static List<GtfsRealtime.FeedEntity> filterRailTripUpdates(GtfsRealtime.FeedMessage feedMessage) {
         return feedMessage.getEntityList()
                 .stream()
                 .filter(GtfsRealtime.FeedEntity::hasTripUpdate)
-                .map(GtfsRealtime.FeedEntity::getTripUpdate)
                 .collect(Collectors.toList());
     }
 }
