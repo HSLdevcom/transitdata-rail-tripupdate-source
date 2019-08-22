@@ -1,6 +1,7 @@
 package fi.hsl.transitdata.railsource;
 
 import com.google.transit.realtime.GtfsRealtime;
+import fi.hsl.common.gtfsrt.FeedMessageFactory;
 import fi.hsl.common.transitdata.TransitdataProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.Producer;
@@ -22,32 +23,32 @@ class RailTripUpdateService {
         this.producer = producer;
     }
 
-    Integer sendRailTripUpdates(GtfsRealtime.FeedMessage feedMessage) throws PulsarClientException {
-        AtomicReference<Integer> sentTripUpdates = new AtomicReference<>(0);
+    int sendRailTripUpdates(GtfsRealtime.FeedMessage feedMessage) {
+        int sentTripUpdates = 0;
+
         List<GtfsRealtime.TripUpdate> tripUpdates = filterRailTripUpdates(feedMessage);
         log.info("Found {} rail alerts", tripUpdates.size());
         for (GtfsRealtime.TripUpdate tripUpdate : tripUpdates) {
-        sendTripUpdates(tripUpdate, sentTripUpdates);
+            sendTripUpdate(tripUpdate);
+            sentTripUpdates++;
         }
-        return sentTripUpdates.get();
+
+        return sentTripUpdates;
     }
 
-    private void sendTripUpdates(GtfsRealtime.TripUpdate tripUpdate, AtomicReference<Integer> sentTripUpdates) throws PulsarClientException {
-        sendPulsarPayloads(tripUpdate);
-        sentTripUpdates.getAndSet(sentTripUpdates.get() + 1);
-    }
+    private void sendTripUpdate(GtfsRealtime.TripUpdate tripUpdate) {
+        long now = System.currentTimeMillis();
 
+        String tripId = tripUpdate.getTrip().getTripId();
+        GtfsRealtime.FeedMessage feedMessage = FeedMessageFactory.createDifferentialFeedMessage(tripId, tripUpdate, now);
 
-    private void sendPulsarPayloads(GtfsRealtime.TripUpdate tripUdpate) throws PulsarClientException {
-        try {
-            producer.newMessage().value(tripUdpate.toByteArray())
-                    .property(TransitdataProperties.KEY_PROTOBUF_SCHEMA, TransitdataProperties.ProtobufSchema.GTFS_TripUpdate.toString())
-                    .send();
-        } catch (PulsarClientException pe) {
-            log.error("Failed to send message to Pulsar", pe);
-            throw pe;
-        } catch (Exception e) {
-            log.error("Failed to handle alert message", e);
-        }
+        producer.newMessage()
+                .key(tripId)
+                .value(feedMessage.toByteArray())
+                .eventTime(now)
+                .property(TransitdataProperties.KEY_PROTOBUF_SCHEMA, TransitdataProperties.ProtobufSchema.GTFS_TripUpdate.toString())
+                .sendAsync()
+                .thenRun(() -> log.debug("Sending TripUpdate for tripId {} with {} StopTimeUpdates and status {}",
+                        tripId, tripUpdate.getStopTimeUpdateCount(), tripUpdate.getTrip().getScheduleRelationship()));
     }
 }
