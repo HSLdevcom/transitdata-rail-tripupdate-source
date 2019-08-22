@@ -26,24 +26,24 @@ class RailTripUpdateService {
     int sendRailTripUpdates(GtfsRealtime.FeedMessage feedMessage) {
         int sentTripUpdates = 0;
 
-        List<GtfsRealtime.TripUpdate> tripUpdates = filterRailTripUpdates(feedMessage);
-        log.info("Found {} rail trip updates", tripUpdates.size());
-        for (GtfsRealtime.TripUpdate tripUpdate : tripUpdates) {
-            sendTripUpdate(tripUpdate);
+        List<GtfsRealtime.FeedEntity> feedEntities = filterRailTripUpdates(feedMessage);
+        log.info("Found {} rail trip updates", feedEntities.size());
+        for (GtfsRealtime.FeedEntity feedEntity : feedEntities) {
+            sendTripUpdate(feedEntity.getId(), feedEntity.getTripUpdate());
             sentTripUpdates++;
         }
 
         return sentTripUpdates;
     }
 
-    private void sendTripUpdate(GtfsRealtime.TripUpdate tripUpdate) {
+    private void sendTripUpdate(String entityId, GtfsRealtime.TripUpdate tripUpdate) {
         long now = System.currentTimeMillis();
 
         String tripId = tripUpdate.getTrip().getTripId();
-        GtfsRealtime.FeedMessage feedMessage = FeedMessageFactory.createDifferentialFeedMessage(tripId, tripUpdate, now);
+        GtfsRealtime.FeedMessage feedMessage = FeedMessageFactory.createDifferentialFeedMessage(entityId, tripUpdate, now);
 
         producer.newMessage()
-                .key(tripId)
+                .key(entityId)
                 .value(feedMessage.toByteArray())
                 .eventTime(now)
                 .property(TransitdataProperties.KEY_PROTOBUF_SCHEMA, TransitdataProperties.ProtobufSchema.GTFS_TripUpdate.toString())
