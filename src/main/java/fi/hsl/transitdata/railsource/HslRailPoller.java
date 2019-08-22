@@ -40,15 +40,7 @@ class HslRailPoller {
         log.info("Reading rail feed messages from " + url);
 
         try (InputStream inputStream = url.openStream()) {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-            byte[] readWindow = new byte[256];
-            int numberOfBytesRead;
-
-            while ((numberOfBytesRead = inputStream.read(readWindow)) > 0) {
-                byteArrayOutputStream.write(readWindow, 0, numberOfBytesRead);
-            }
-            return GtfsRealtime.FeedMessage.parseFrom(byteArrayOutputStream.toByteArray());
+            return GtfsRealtime.FeedMessage.parseFrom(inputStream);
         }
     }
 
