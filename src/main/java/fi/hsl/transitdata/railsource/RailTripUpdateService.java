@@ -26,7 +26,6 @@ class RailTripUpdateService {
         AtomicReference<Integer> sentTripUpdates = new AtomicReference<>(0);
         List<GtfsRealtime.TripUpdate> tripUpdates = filterRailTripUpdates(feedMessage);
         log.info("Found {} rail alerts", tripUpdates.size());
-        log.info("Example tripupdate sent: {}", tripUpdates.get(0));
         for (GtfsRealtime.TripUpdate tripUpdate : tripUpdates) {
         sendTripUpdates(tripUpdate, sentTripUpdates);
         }
