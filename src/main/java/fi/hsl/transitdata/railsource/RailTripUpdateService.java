@@ -29,16 +29,17 @@ class RailTripUpdateService {
         List<GtfsRealtime.FeedEntity> feedEntities = filterRailTripUpdates(feedMessage);
         log.info("Found {} rail trip updates", feedEntities.size());
         for (GtfsRealtime.FeedEntity feedEntity : feedEntities) {
-            sendTripUpdate(feedEntity.getId(), feedEntity.getTripUpdate());
+            sendTripUpdate(feedEntity.getTripUpdate());
             sentTripUpdates++;
         }
 
         return sentTripUpdates;
     }
 
-    private void sendTripUpdate(String entityId, GtfsRealtime.TripUpdate tripUpdate) {
+    private void sendTripUpdate(GtfsRealtime.TripUpdate tripUpdate) {
         long now = System.currentTimeMillis();
 
+        String entityId = generateEntityId(tripUpdate);
         String tripId = tripUpdate.getTrip().getTripId();
         GtfsRealtime.FeedMessage feedMessage = FeedMessageFactory.createDifferentialFeedMessage(entityId, tripUpdate, now);
 
@@ -50,5 +51,9 @@ class RailTripUpdateService {
                 .sendAsync()
                 .thenRun(() -> log.debug("Sending TripUpdate for tripId {} with {} StopTimeUpdates and status {}",
                         tripId, tripUpdate.getStopTimeUpdateCount(), tripUpdate.getTrip().getScheduleRelationship()));
+    }
+
+    static String generateEntityId(GtfsRealtime.TripUpdate tripUpdate) {
+        return "rail_" + String.join("-", tripUpdate.getTrip().getRouteId(), tripUpdate.getTrip().getStartDate(), tripUpdate.getTrip().getStartTime(), String.valueOf(tripUpdate.getTrip().getDirectionId()));
     }
 }
