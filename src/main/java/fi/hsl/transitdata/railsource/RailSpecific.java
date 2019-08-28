@@ -19,14 +19,7 @@ class RailSpecific {
         //If trip update has specified delay and stop time updates, timing information in stop time updates is ignored
         //-> remove delay from trip update
         if (tripUpdate.hasDelay() && tripUpdate.getStopTimeUpdateCount() != 0) {
-            GtfsRealtime.TripUpdate fixedTripUpdate = GtfsRealtime.TripUpdate.newBuilder()
-                    .setTrip(tripUpdate.getTrip())
-                    .setTimestamp(tripUpdate.getTimestamp())
-                    .setVehicle(tripUpdate.getVehicle())
-                    .addAllStopTimeUpdate(tripUpdate.getStopTimeUpdateList())
-                    .build();
-
-            return fixedTripUpdate;
+            return tripUpdate.toBuilder().clearDelay().build();
         } else {
             return tripUpdate;
         }
