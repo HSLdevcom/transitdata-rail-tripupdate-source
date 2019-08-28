@@ -10,7 +10,7 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static fi.hsl.transitdata.railsource.RailSpecific.filterRailTripUpdates;
+import static fi.hsl.transitdata.railsource.RailSpecific.*;
 
 /**
  * Sends parsed railway alerts to a Pulsar topic
@@ -39,7 +39,9 @@ class RailTripUpdateService {
     private void sendTripUpdate(GtfsRealtime.TripUpdate tripUpdate) {
         long now = System.currentTimeMillis();
 
-        String entityId = generateEntityId(tripUpdate);
+        final GtfsRealtime.TripUpdate fixedTripUpdate = fixInvalidTripUpdateDelayUsage(tripUpdate);
+
+        String entityId = generateEntityId(fixedTripUpdate);
         String tripId = tripUpdate.getTrip().getTripId();
         GtfsRealtime.FeedMessage feedMessage = FeedMessageFactory.createDifferentialFeedMessage(entityId, tripUpdate, now);
 
@@ -50,7 +52,7 @@ class RailTripUpdateService {
                 .property(TransitdataProperties.KEY_PROTOBUF_SCHEMA, TransitdataProperties.ProtobufSchema.GTFS_TripUpdate.toString())
                 .sendAsync()
                 .thenRun(() -> log.debug("Sending TripUpdate for tripId {} with {} StopTimeUpdates and status {}",
-                        tripId, tripUpdate.getStopTimeUpdateCount(), tripUpdate.getTrip().getScheduleRelationship()));
+                        tripId, fixedTripUpdate.getStopTimeUpdateCount(), fixedTripUpdate.getTrip().getScheduleRelationship()));
     }
 
     static String generateEntityId(GtfsRealtime.TripUpdate tripUpdate) {
