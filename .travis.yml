@@ -30,7 +30,9 @@ before_install:
 cache:
   directories:
     - ~/.m2
+
 script:
+  - mvn -f pom.xml clean install
   - set -e
   - ./.travis/check_semver
   - docker build --tag "${DOCKER_LOCAL}" .
@@ -46,7 +48,3 @@ deploy:
     on:
       tags: true
       all_branches: true
-  - provider: script
-    script: sh ./.travis/docker_login_tag_push "${DOCKER_LOCAL}" "${DOCKER_DEV_TAG}"
-    on:
-      branch: master

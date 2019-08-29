@@ -8,11 +8,20 @@ import java.util.stream.Collectors;
 
 @Slf4j
 class RailSpecific {
-    static List<GtfsRealtime.TripUpdate> filterRailTripUpdates(GtfsRealtime.FeedMessage feedMessage) {
+    static List<GtfsRealtime.FeedEntity> filterRailTripUpdates(GtfsRealtime.FeedMessage feedMessage) {
         return feedMessage.getEntityList()
                 .stream()
                 .filter(GtfsRealtime.FeedEntity::hasTripUpdate)
-                .map(GtfsRealtime.FeedEntity::getTripUpdate)
                 .collect(Collectors.toList());
+    }
+
+    static GtfsRealtime.TripUpdate fixInvalidTripUpdateDelayUsage(GtfsRealtime.TripUpdate tripUpdate) {
+        //If trip update has specified delay and stop time updates, timing information in stop time updates is ignored
+        //-> remove delay from trip update
+        if (tripUpdate.hasDelay() && tripUpdate.getStopTimeUpdateCount() != 0) {
+            return tripUpdate.toBuilder().clearDelay().build();
+        } else {
+            return tripUpdate;
+        }
     }
 }

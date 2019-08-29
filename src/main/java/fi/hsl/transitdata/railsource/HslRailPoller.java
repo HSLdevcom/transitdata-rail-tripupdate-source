@@ -17,7 +17,6 @@ class HslRailPoller {
 
     private final Producer<byte[]> producer;
     private final Jedis jedis;
-    private final String serviceDayStartTime;
     private final String railUrlString;
     private final RailTripUpdateService railTripUpdateService;
 
@@ -25,7 +24,6 @@ class HslRailPoller {
         this.railUrlString = config.getString("poller.railurl");
         this.producer = producer;
         this.jedis = jedis;
-        this.serviceDayStartTime = config.getString("poller.serviceDayStartTime");
         this.railTripUpdateService = railTripUpdateService;
     }
 
@@ -42,15 +40,7 @@ class HslRailPoller {
         log.info("Reading rail feed messages from " + url);
 
         try (InputStream inputStream = url.openStream()) {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-            byte[] readWindow = new byte[256];
-            int numberOfBytesRead;
-
-            while ((numberOfBytesRead = inputStream.read(readWindow)) > 0) {
-                byteArrayOutputStream.write(readWindow, 0, numberOfBytesRead);
-            }
-            return GtfsRealtime.FeedMessage.parseFrom(byteArrayOutputStream.toByteArray());
+            return GtfsRealtime.FeedMessage.parseFrom(inputStream);
         }
     }
 
