@@ -24,4 +24,29 @@ class RailSpecific {
             return tripUpdate;
         }
     }
+
+    static GtfsRealtime.TripUpdate removeDelayFieldFromStopTimeUpdates(GtfsRealtime.TripUpdate tripUpdate) {
+        List<GtfsRealtime.TripUpdate.StopTimeUpdate> stopTimeUpdates = tripUpdate.getStopTimeUpdateList().stream()
+                .map(GtfsRealtime.TripUpdate.StopTimeUpdate::toBuilder)
+                .map(stuBuilder -> {
+                    if (stuBuilder.hasArrival()) {
+                        stuBuilder = stuBuilder.setArrival(removeDelayField(stuBuilder.getArrival()));
+                    }
+                    if (stuBuilder.hasDeparture()) {
+                        stuBuilder = stuBuilder.setDeparture(removeDelayField(stuBuilder.getDeparture()));
+                    }
+                    return stuBuilder.build();
+                })
+                .collect(Collectors.toList());
+
+        return tripUpdate.toBuilder().clearStopTimeUpdate().addAllStopTimeUpdate(stopTimeUpdates).build();
+    }
+
+    private static GtfsRealtime.TripUpdate.StopTimeEvent removeDelayField(GtfsRealtime.TripUpdate.StopTimeEvent stopTimeEvent) {
+        if (stopTimeEvent.hasDelay() && stopTimeEvent.hasTime()) {
+            return stopTimeEvent.toBuilder().clearDelay().build();
+        } else {
+            return stopTimeEvent;
+        }
+    }
 }
