@@ -29,7 +29,13 @@ class RailTripUpdateService {
         List<GtfsRealtime.FeedEntity> feedEntities = filterRailTripUpdates(feedMessage);
         log.info("Found {} rail trip updates", feedEntities.size());
         for (GtfsRealtime.FeedEntity feedEntity : feedEntities) {
-            sendTripUpdate(fixInvalidTripUpdateDelayUsage(feedEntity.getTripUpdate()));
+            GtfsRealtime.TripUpdate tripUpdate = feedEntity.getTripUpdate();
+            //Remove 'delay' field from trip update as stop time updates should be used to provide timing information
+            tripUpdate = fixInvalidTripUpdateDelayUsage(tripUpdate);
+            //Remove 'delay' field from stop time updates as raildigitraffic2gtfsrt API only provides inaccurate values
+            tripUpdate = removeDelayFieldFromStopTimeUpdates(tripUpdate);
+
+            sendTripUpdate(tripUpdate);
             sentTripUpdates++;
         }
 
