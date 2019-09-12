@@ -49,4 +49,14 @@ class RailSpecific {
             return stopTimeEvent;
         }
     }
+
+    static GtfsRealtime.TripUpdate removeTripIdField(GtfsRealtime.TripUpdate tripUpdate) {
+        if (tripUpdate.hasTrip() && tripUpdate.getTrip().hasTripId()) {
+            return tripUpdate.toBuilder()
+                    .setTrip(tripUpdate.getTrip().toBuilder().clearTripId())
+                    .build();
+        } else {
+            return tripUpdate;
+        }
+    }
 }

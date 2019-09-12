@@ -34,6 +34,8 @@ class RailTripUpdateService {
             tripUpdate = fixInvalidTripUpdateDelayUsage(tripUpdate);
             //Remove 'delay' field from stop time updates as raildigitraffic2gtfsrt API only provides inaccurate values
             tripUpdate = removeDelayFieldFromStopTimeUpdates(tripUpdate);
+            //Remove 'trip_id' field from trip descriptor as we don't know if trip id provided by raildigitraffic2gtfsrt API is the same as in static GTFS feed used by Google and others
+            tripUpdate = removeTripIdField(tripUpdate);
 
             sendTripUpdate(tripUpdate);
             sentTripUpdates++;
