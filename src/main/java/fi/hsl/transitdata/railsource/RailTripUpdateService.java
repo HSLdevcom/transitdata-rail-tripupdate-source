@@ -68,7 +68,7 @@ class RailTripUpdateService {
 
                     if (messageId != null) {
                         log.debug("Sending TripUpdate for entity {} with {} StopTimeUpdates and status {}",
-                                entityId, tripUpdate.getStopTimeUpdateCount(), tripUpdate.getTrip().getScheduleRelationship())
+                                entityId, tripUpdate.getStopTimeUpdateCount(), tripUpdate.getTrip().getScheduleRelationship());
                     }
                 });
     }
