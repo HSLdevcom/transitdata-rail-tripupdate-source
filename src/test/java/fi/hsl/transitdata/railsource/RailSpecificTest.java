@@ -1,6 +1,7 @@
 package fi.hsl.transitdata.railsource;
 
 import com.google.transit.realtime.GtfsRealtime;
+import com.sun.org.apache.xpath.internal.operations.Gt;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -78,5 +79,22 @@ public class RailSpecificTest {
 
         assertFalse(tripUpdate.getStopTimeUpdate(1).getArrival().hasDelay());
         assertFalse(tripUpdate.getStopTimeUpdate(1).getDeparture().hasDelay());
+    }
+
+    @Test
+    public void testTripIdIsRemovedFromTripDescriptor() {
+        GtfsRealtime.TripDescriptor tripDescriptor = GtfsRealtime.TripDescriptor.newBuilder()
+                .setTripId("trip_1")
+                .setStartDate("20000101")
+                .setStartTime("06:00:00")
+                .setRouteId("route_1")
+                .build();
+
+        GtfsRealtime.TripUpdate tripUpdate = GtfsRealtime.TripUpdate.newBuilder()
+                .setTrip(tripDescriptor)
+                .setDelay(60)
+                .build();
+
+        assertFalse(RailSpecific.removeTripIdField(tripUpdate).getTrip().hasTripId());
     }
 }
