@@ -1,7 +1,6 @@
 package fi.hsl.transitdata.railsource;
 
 import com.google.transit.realtime.GtfsRealtime;
-import com.sun.org.apache.xpath.internal.operations.Gt;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
