@@ -29,7 +29,15 @@ class RailTripUpdateService {
         List<GtfsRealtime.FeedEntity> feedEntities = filterRailTripUpdates(feedMessage);
         log.info("Found {} rail trip updates", feedEntities.size());
         for (GtfsRealtime.FeedEntity feedEntity : feedEntities) {
-            sendTripUpdate(fixInvalidTripUpdateDelayUsage(feedEntity.getTripUpdate()));
+            GtfsRealtime.TripUpdate tripUpdate = feedEntity.getTripUpdate();
+            //Remove 'delay' field from trip update as stop time updates should be used to provide timing information
+            tripUpdate = fixInvalidTripUpdateDelayUsage(tripUpdate);
+            //Remove 'delay' field from stop time updates as raildigitraffic2gtfsrt API only provides inaccurate values
+            tripUpdate = removeDelayFieldFromStopTimeUpdates(tripUpdate);
+            //Remove 'trip_id' field from trip descriptor as we don't know if trip id provided by raildigitraffic2gtfsrt API is the same as in static GTFS feed used by Google and others
+            tripUpdate = removeTripIdField(tripUpdate);
+
+            sendTripUpdate(tripUpdate);
             sentTripUpdates++;
         }
 
@@ -40,7 +48,7 @@ class RailTripUpdateService {
         long now = System.currentTimeMillis();
 
         String entityId = generateEntityId(tripUpdate);
-        String tripId = tripUpdate.getTrip().getTripId();
+        //String tripId = tripUpdate.getTrip().getTripId();
         GtfsRealtime.FeedMessage feedMessage = FeedMessageFactory.createDifferentialFeedMessage(entityId, tripUpdate, now);
 
         producer.newMessage()
@@ -49,8 +57,20 @@ class RailTripUpdateService {
                 .eventTime(now)
                 .property(TransitdataProperties.KEY_PROTOBUF_SCHEMA, TransitdataProperties.ProtobufSchema.GTFS_TripUpdate.toString())
                 .sendAsync()
-                .thenRun(() -> log.debug("Sending TripUpdate for tripId {} with {} StopTimeUpdates and status {}",
-                        tripId, tripUpdate.getStopTimeUpdateCount(), tripUpdate.getTrip().getScheduleRelationship()));
+                .whenComplete((messageId, throwable) -> {
+                    if (throwable != null) {
+                        if (throwable instanceof PulsarClientException) {
+                            log.error("Failed to send message to Pulsar", throwable);
+                        } else {
+                            log.error("Unexpected error", throwable);
+                        }
+                    }
+
+                    if (messageId != null) {
+                        log.debug("Sending TripUpdate for entity {} with {} StopTimeUpdates and status {}",
+                                entityId, tripUpdate.getStopTimeUpdateCount(), tripUpdate.getTrip().getScheduleRelationship());
+                    }
+                });
     }
 
     static String generateEntityId(GtfsRealtime.TripUpdate tripUpdate) {
