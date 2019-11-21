@@ -18,9 +18,9 @@ import java.util.concurrent.TimeUnit;
  * Rail source service sends tripupdates and alerts from trains
  * to corresponding tripupdate and alert topics.
  */
-public class HSLRailSourceMain {
+public class HSLGtfsRtSourceMain {
 
-    private static final Logger log = LoggerFactory.getLogger(HSLRailSourceMain.class);
+    private static final Logger log = LoggerFactory.getLogger(HSLGtfsRtSourceMain.class);
 
     public static void main(String[] args) {
 
