@@ -1,11 +1,11 @@
-package fi.hsl.transitdata.railsource;
+package fi.hsl.transitdata.gtfsrtsource;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.typesafe.config.Config;
 import fi.hsl.common.config.ConfigParser;
 import fi.hsl.common.pulsar.PulsarApplication;
 import fi.hsl.common.pulsar.PulsarApplicationContext;
-import fi.hsl.transitdata.railsource.raildigitraffic.RailDigitrafficFeedEntityProcessor;
+import fi.hsl.transitdata.gtfsrtsource.raildigitraffic.RailDigitrafficFeedEntityProcessor;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

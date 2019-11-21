@@ -1,4 +1,4 @@
-package fi.hsl.transitdata.railsource.raildigitraffic;
+package fi.hsl.transitdata.gtfsrtsource.raildigitraffic;
 
 import com.google.transit.realtime.GtfsRealtime;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,6 @@
-package fi.hsl.transitdata.railsource.raildigitraffic;
+package fi.hsl.transitdata.gtfsrtsource.raildigitraffic;
 
 import com.google.transit.realtime.GtfsRealtime;
-import fi.hsl.transitdata.railsource.raildigitraffic.RailSpecific;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -1,11 +1,11 @@
-package fi.hsl.transitdata.railsource.raildigitraffic;
+package fi.hsl.transitdata.gtfsrtsource.raildigitraffic;
 
 import com.google.transit.realtime.GtfsRealtime;
-import fi.hsl.transitdata.railsource.FeedEntityProcessor;
+import fi.hsl.transitdata.gtfsrtsource.FeedEntityProcessor;
 
 import java.util.Optional;
 
-import static fi.hsl.transitdata.railsource.raildigitraffic.RailSpecific.*;
+import static fi.hsl.transitdata.gtfsrtsource.raildigitraffic.RailSpecific.*;
 
 public class RailDigitrafficFeedEntityProcessor implements FeedEntityProcessor {
     @Override

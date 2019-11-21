@@ -1,4 +1,4 @@
-package fi.hsl.transitdata.railsource;
+package fi.hsl.transitdata.gtfsrtsource;
 
 import com.google.transit.realtime.GtfsRealtime;
 import org.apache.pulsar.client.api.Producer;

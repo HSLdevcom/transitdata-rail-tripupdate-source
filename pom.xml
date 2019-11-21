@@ -130,7 +130,7 @@
                             <transformers>
                                 <!-- add Main-Class to manifest file -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>fi.hsl.transitdata.railsource.HSLGtfsRtSourceMain</mainClass> </transformer>
+                                    <mainClass>fi.hsl.transitdata.gtfsrtsource.HSLGtfsRtSourceMain</mainClass> </transformer>
                             </transformers>
                                 <filters>
                                     <filter>
