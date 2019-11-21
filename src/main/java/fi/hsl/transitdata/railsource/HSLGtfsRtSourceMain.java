@@ -28,8 +28,7 @@ public class HSLGtfsRtSourceMain {
             final Config config = ConfigParser.createConfig();
             final PulsarApplication app = PulsarApplication.newInstance(config);
             final PulsarApplicationContext context = app.getContext();
-            final HslRailPoller poller = new HslRailPoller(context.getProducer(), context.getJedis(), config,
-                    new RailTripUpdateService(context.getProducer()));
+            final HslGtfsRtPoller poller = new HslGtfsRtPoller(config, new RailTripUpdateService(context.getProducer()));
 
             final int pollIntervalInSeconds = config.getInt("poller.interval");
             final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();

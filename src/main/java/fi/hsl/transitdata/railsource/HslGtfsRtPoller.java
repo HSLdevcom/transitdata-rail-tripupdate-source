@@ -13,22 +13,17 @@ import java.io.InputStream;
 import java.net.URL;
 
 @Slf4j
-class HslRailPoller {
-
-    private final Producer<byte[]> producer;
-    private final Jedis jedis;
-    private final String railUrlString;
+class HslGtfsRtPoller {
+    private final String gtfsRtUrl;
     private final RailTripUpdateService railTripUpdateService;
 
-    HslRailPoller(Producer<byte[]> producer, Jedis jedis, Config config, RailTripUpdateService railTripUpdateService) {
-        this.railUrlString = config.getString("poller.railurl");
-        this.producer = producer;
-        this.jedis = jedis;
+    HslGtfsRtPoller(Config config, RailTripUpdateService railTripUpdateService) {
+        this.gtfsRtUrl = config.getString("poller.gtfsrturl");
         this.railTripUpdateService = railTripUpdateService;
     }
 
     void poll() throws IOException {
-        GtfsRealtime.FeedMessage feedMessage = readFeedMessage(railUrlString);
+        GtfsRealtime.FeedMessage feedMessage = readFeedMessage(gtfsRtUrl);
         handleFeedMessage(feedMessage);
     }
 
@@ -37,14 +32,14 @@ class HslRailPoller {
     }
 
     static GtfsRealtime.FeedMessage readFeedMessage(URL url) throws IOException {
-        log.info("Reading rail feed messages from " + url);
+        log.info("Reading GTFS RT feed messages from " + url);
 
         try (InputStream inputStream = url.openStream()) {
             return GtfsRealtime.FeedMessage.parseFrom(inputStream);
         }
     }
 
-    private void handleFeedMessage(GtfsRealtime.FeedMessage feedMessage) throws PulsarClientException {
+    private void handleFeedMessage(GtfsRealtime.FeedMessage feedMessage) {
         railTripUpdateService.sendRailTripUpdates(feedMessage);
     }
 
