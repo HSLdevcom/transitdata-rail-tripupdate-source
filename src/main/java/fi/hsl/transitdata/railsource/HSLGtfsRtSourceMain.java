@@ -17,8 +17,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Rail source service sends tripupdates and alerts from trains
- * to corresponding tripupdate and alert topics.
+ * Gtfs Rt source polls feed messages from specified URL and publishes them individually to Pulsar
  */
 public class HSLGtfsRtSourceMain {
 
