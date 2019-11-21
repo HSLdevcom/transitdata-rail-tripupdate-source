@@ -1,7 +1,7 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>fi.hsl.transitdata</groupId>
-    <artifactId>transitdata-rail-tripupdate-source</artifactId>
+    <artifactId>transitdata-generic-gtfsrt-source</artifactId>
     <version>1.0.2</version>
     <packaging>jar</packaging>
 
@@ -106,7 +106,7 @@
     </dependencies>
 
     <build>
-        <finalName>transitdata-rail-tripupdate-source</finalName>
+        <finalName>transitdata-generic-gtfsrt-source</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
