@@ -15,11 +15,11 @@ import java.net.URL;
 @Slf4j
 class HslGtfsRtPoller {
     private final String gtfsRtUrl;
-    private final RailTripUpdateService railTripUpdateService;
+    private final FeedEntityPublisher feedEntityPublisher;
 
-    HslGtfsRtPoller(Config config, RailTripUpdateService railTripUpdateService) {
+    HslGtfsRtPoller(Config config, FeedEntityPublisher feedEntityPublisher) {
         this.gtfsRtUrl = config.getString("poller.gtfsrturl");
-        this.railTripUpdateService = railTripUpdateService;
+        this.feedEntityPublisher = feedEntityPublisher;
     }
 
     void poll() throws IOException {
@@ -40,7 +40,7 @@ class HslGtfsRtPoller {
     }
 
     private void handleFeedMessage(GtfsRealtime.FeedMessage feedMessage) {
-        railTripUpdateService.sendRailTripUpdates(feedMessage);
+        feedEntityPublisher.publishFeedMessage(feedMessage);
     }
 
 }

@@ -5,11 +5,13 @@ import com.typesafe.config.Config;
 import fi.hsl.common.config.ConfigParser;
 import fi.hsl.common.pulsar.PulsarApplication;
 import fi.hsl.common.pulsar.PulsarApplicationContext;
+import fi.hsl.transitdata.railsource.raildigitraffic.RailDigitrafficFeedEntityProcessor;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +30,18 @@ public class HSLGtfsRtSourceMain {
             final Config config = ConfigParser.createConfig();
             final PulsarApplication app = PulsarApplication.newInstance(config);
             final PulsarApplicationContext context = app.getContext();
-            final HslGtfsRtPoller poller = new HslGtfsRtPoller(config, new RailTripUpdateService(context.getProducer()));
+
+            final FeedEntityProcessor feedEntityProcessor;
+            switch (config.getString("poller.processor")) {
+                case "raildigitraffic":
+                    feedEntityProcessor = new RailDigitrafficFeedEntityProcessor();
+                    break;
+                default:
+                    feedEntityProcessor = Optional::ofNullable;
+                    break;
+            }
+
+            final HslGtfsRtPoller poller = new HslGtfsRtPoller(config, new FeedEntityPublisher(context.getProducer(), feedEntityProcessor));
 
             final int pollIntervalInSeconds = config.getInt("poller.interval");
             final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
