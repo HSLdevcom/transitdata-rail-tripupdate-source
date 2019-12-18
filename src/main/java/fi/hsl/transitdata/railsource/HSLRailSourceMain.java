@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Rail source service sends tripupdates and alerts from trains
@@ -32,10 +33,18 @@ public class HSLRailSourceMain {
                     new RailTripUpdateService(context.getProducer()));
 
             final int pollIntervalInSeconds = config.getInt("poller.interval");
+            final long maxTimeAfterSending = config.getDuration("poller.unhealthyAfterNotSending", TimeUnit.NANOSECONDS);
+            final AtomicLong sendTime = new AtomicLong(System.nanoTime());
+
+            if (context.getHealthServer() != null) {
+                context.getHealthServer().addCheck(() -> System.nanoTime() - sendTime.get() < maxTimeAfterSending);
+            }
+
             final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
             scheduler.scheduleAtFixedRate(() -> {
                 try {
                     poller.poll();
+                    sendTime.set(System.nanoTime());
                 } catch (InvalidProtocolBufferException e) {
                     log.error("Cancellation message format is invalid", e);
                 } catch (PulsarClientException e) {
@@ -48,8 +57,6 @@ public class HSLRailSourceMain {
                     closeApplication(app, scheduler);
                 }
             }, 0, pollIntervalInSeconds, TimeUnit.SECONDS);
-
-
         } catch (Exception e) {
             log.error("Exception at fi.hsl.transitdata.railsource.HSLRailSourceMain: " + e.getMessage(), e);
         }
