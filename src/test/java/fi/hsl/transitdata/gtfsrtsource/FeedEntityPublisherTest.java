@@ -1,10 +1,7 @@
-package fi.hsl.transitdata.railsource;
+package fi.hsl.transitdata.gtfsrtsource;
 
 import com.google.transit.realtime.GtfsRealtime;
-import fi.hsl.common.pulsar.PulsarApplicationContext;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.pulsar.client.api.Producer;
-import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,13 +14,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Slf4j
-public class RailTripUpdateServiceTest {
-
+public class FeedEntityPublisherTest {
     private static GtfsRealtime.FeedMessage FEEDMESSAGE = null;
-    private static PulsarApplicationContext context;
-    private RailTripUpdateService railTripUpdateService;
-
+    private static FeedEntityPublisher feedEntityPublisher = null;
 
     @Before
     public void init() {
@@ -40,15 +33,13 @@ public class RailTripUpdateServiceTest {
 
         when(producerMock.newMessage()).thenReturn(typedMessageBuilderMock);
 
-        this.railTripUpdateService = new RailTripUpdateService(producerMock);
+        this.feedEntityPublisher = new FeedEntityPublisher(producerMock);
     }
 
     @Test
-    public void handleRailAlerts_sendValidAlert_shouldSendToProducer() {
-        Integer sentTripUpdates = this.railTripUpdateService.sendRailTripUpdates(FEEDMESSAGE);
+    public void testFeedEntityPublisherSendsFeedEntitiesToPulsar() {
+        int sentTripUpdates = this.feedEntityPublisher.publishFeedMessage(FEEDMESSAGE);
         //Example file contains 35 alerts
-        assertEquals(sentTripUpdates, 232, 0);
+        assertEquals(sentTripUpdates, 232);
     }
-
-
 }

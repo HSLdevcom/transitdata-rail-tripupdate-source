@@ -1,4 +1,4 @@
-package fi.hsl.transitdata.railsource;
+package fi.hsl.transitdata.gtfsrtsource;
 
 import com.google.transit.realtime.GtfsRealtime;
 
@@ -9,7 +9,7 @@ import java.net.URL;
 
 class TestUtils {
     static GtfsRealtime.FeedMessage readExample() {
-        URL railAlertStream = RailTripUpdateServiceTest.class.getClassLoader().getResource("rail-alert-example.json");
+        URL railAlertStream = TestUtils.class.getClassLoader().getResource("rail-alert-example.json");
         try (InputStream inputStream = railAlertStream.openStream()) {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 

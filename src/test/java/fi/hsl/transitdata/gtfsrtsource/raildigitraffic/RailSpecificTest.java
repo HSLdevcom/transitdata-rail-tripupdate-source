@@ -1,4 +1,4 @@
-package fi.hsl.transitdata.railsource;
+package fi.hsl.transitdata.gtfsrtsource.raildigitraffic;
 
 import com.google.transit.realtime.GtfsRealtime;
 import org.junit.Test;

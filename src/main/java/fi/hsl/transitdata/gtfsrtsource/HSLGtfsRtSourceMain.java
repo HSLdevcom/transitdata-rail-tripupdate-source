@@ -1,27 +1,28 @@
-package fi.hsl.transitdata.railsource;
+package fi.hsl.transitdata.gtfsrtsource;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.typesafe.config.Config;
 import fi.hsl.common.config.ConfigParser;
 import fi.hsl.common.pulsar.PulsarApplication;
 import fi.hsl.common.pulsar.PulsarApplicationContext;
+import fi.hsl.transitdata.gtfsrtsource.raildigitraffic.RailDigitrafficFeedEntityProcessor;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Rail source service sends tripupdates and alerts from trains
- * to corresponding tripupdate and alert topics.
+ * Gtfs Rt source polls feed messages from specified URL and publishes them individually to Pulsar
  */
-public class HSLRailSourceMain {
+public class HSLGtfsRtSourceMain {
 
-    private static final Logger log = LoggerFactory.getLogger(HSLRailSourceMain.class);
+    private static final Logger log = LoggerFactory.getLogger(HSLGtfsRtSourceMain.class);
 
     public static void main(String[] args) {
 
@@ -29,8 +30,18 @@ public class HSLRailSourceMain {
             final Config config = ConfigParser.createConfig();
             final PulsarApplication app = PulsarApplication.newInstance(config);
             final PulsarApplicationContext context = app.getContext();
-            final HslRailPoller poller = new HslRailPoller(context.getProducer(), context.getJedis(), config,
-                    new RailTripUpdateService(context.getProducer()));
+
+            final FeedEntityProcessor feedEntityProcessor;
+            switch (config.getString("poller.processor")) {
+                case "raildigitraffic":
+                    feedEntityProcessor = new RailDigitrafficFeedEntityProcessor();
+                    break;
+                default:
+                    feedEntityProcessor = Optional::ofNullable;
+                    break;
+            }
+
+            final HslGtfsRtPoller poller = new HslGtfsRtPoller(config, new FeedEntityPublisher(context.getProducer(), feedEntityProcessor));
 
             final int pollIntervalInSeconds = config.getInt("poller.interval");
             final long maxTimeAfterSending = config.getDuration("poller.unhealthyAfterNotSending", TimeUnit.NANOSECONDS);

@@ -1,7 +1,7 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>fi.hsl.transitdata</groupId>
-    <artifactId>transitdata-rail-tripupdate-source</artifactId>
+    <artifactId>transitdata-generic-gtfsrt-source</artifactId>
     <version>1.0.3</version>
     <packaging>jar</packaging>
 
@@ -106,7 +106,7 @@
     </dependencies>
 
     <build>
-        <finalName>transitdata-rail-tripupdate-source</finalName>
+        <finalName>transitdata-generic-gtfsrt-source</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -130,7 +130,7 @@
                             <transformers>
                                 <!-- add Main-Class to manifest file -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>fi.hsl.transitdata.railsource.HSLRailSourceMain</mainClass> </transformer>
+                                    <mainClass>fi.hsl.transitdata.gtfsrtsource.HSLGtfsRtSourceMain</mainClass> </transformer>
                             </transformers>
                                 <filters>
                                     <filter>
