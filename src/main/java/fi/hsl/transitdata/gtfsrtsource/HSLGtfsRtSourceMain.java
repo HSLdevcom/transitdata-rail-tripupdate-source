@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Gtfs Rt source polls feed messages from specified URL and publishes them individually to Pulsar
@@ -43,10 +44,18 @@ public class HSLGtfsRtSourceMain {
             final HslGtfsRtPoller poller = new HslGtfsRtPoller(config, new FeedEntityPublisher(context.getProducer(), feedEntityProcessor));
 
             final int pollIntervalInSeconds = config.getInt("poller.interval");
+            final long maxTimeAfterSending = config.getDuration("poller.unhealthyAfterNotSending", TimeUnit.NANOSECONDS);
+            final AtomicLong sendTime = new AtomicLong(System.nanoTime());
+
+            if (context.getHealthServer() != null) {
+                context.getHealthServer().addCheck(() -> System.nanoTime() - sendTime.get() < maxTimeAfterSending);
+            }
+
             final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
             scheduler.scheduleAtFixedRate(() -> {
                 try {
                     poller.poll();
+                    sendTime.set(System.nanoTime());
                 } catch (InvalidProtocolBufferException e) {
                     log.error("Cancellation message format is invalid", e);
                 } catch (PulsarClientException e) {
@@ -59,8 +68,6 @@ public class HSLGtfsRtSourceMain {
                     closeApplication(app, scheduler);
                 }
             }, 0, pollIntervalInSeconds, TimeUnit.SECONDS);
-
-
         } catch (Exception e) {
             log.error("Exception at fi.hsl.transitdata.railsource.HSLRailSourceMain: " + e.getMessage(), e);
         }
